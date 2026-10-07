@@ -1,0 +1,1579 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#020617">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<title>Idol Ranker Pro - Mobile</title>
+<style>
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+[hidden]{display:none!important}
+html,body{margin:0;padding:0}
+body{background:#0f172a;color:#f3f4f6;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;-webkit-user-select:none;user-select:none;overflow-x:hidden;touch-action:manipulation}
+body.noscroll{overflow:hidden}
+button{font-family:inherit;cursor:pointer;touch-action:manipulation}
+textarea,input,select{font-family:inherit;-webkit-user-select:text;user-select:text}
+
+/* ---------- Header ---------- */
+#top{position:sticky;top:0;z-index:30;background:#020617;border-bottom:1px solid #1e293b;padding:calc(6px + env(safe-area-inset-top)) 10px 8px}
+.top-row{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.top-row + .top-row{margin-top:7px}
+h1{margin:0;font-size:.95rem;font-weight:900;font-style:italic;text-transform:uppercase;letter-spacing:-.01em;color:#818cf8;white-space:nowrap}
+.hbtns{display:flex;gap:6px}
+.hbtn{border:0;border-radius:8px;color:#fff;font-weight:800;font-size:.68rem;text-transform:uppercase;padding:8px 10px;position:relative;min-height:34px}
+.hbtn.save{background:#16a34a}.hbtn.exp{background:#2563eb}.hbtn.rst{background:#334155}
+.hbtn .dot{position:absolute;top:-3px;right:-3px;width:11px;height:11px;border-radius:50%;background:#f59e0b;border:2px solid #020617}
+#preset{flex:1;min-width:0;background:#1e293b;color:#e2e8f0;border:2px solid #4f46e5;border-radius:10px;padding:8px 10px;font-size:16px;font-weight:700;min-height:40px}
+#count{font-size:.68rem;font-weight:800;color:#94a3b8;text-align:right;white-space:nowrap;line-height:1.25}
+
+/* ---------- Board ---------- */
+#board{padding:12px 10px calc(96px + env(safe-area-inset-bottom));max-width:600px;margin:0 auto}
+#hint{background:#1e1b4b;border:1px solid #4338ca;color:#c7d2fe;border-radius:12px;padding:10px 12px;font-size:.78rem;line-height:1.45;margin-bottom:14px;display:flex;gap:10px;align-items:flex-start}
+#hint button{background:none;border:0;color:#a5b4fc;font-size:1.1rem;padding:0 2px;line-height:1}
+.divider{display:flex;align-items:center;gap:10px;margin:18px 0 12px;color:#6366f1;font-size:.68rem;font-weight:900;text-transform:uppercase;letter-spacing:.14em}
+.divider::before,.divider::after{content:"";height:3px;flex:1;background:linear-gradient(90deg,transparent,#4f46e5,transparent);opacity:.8;border-radius:2px}
+.slot{position:relative;margin:0 0 14px;border-radius:16px;overflow:hidden;background:#1e293b;border:2px solid #334155;min-height:158px;box-shadow:0 6px 16px rgba(0,0,0,.35)}
+.slot.empty{border-style:dashed;cursor:pointer}
+.slot.empty:active{background:#243247}
+.slot.flash{animation:flash 1.2s ease}
+@keyframes flash{0%,60%{box-shadow:0 0 0 4px #f59e0b,0 0 28px #f59e0b}100%{box-shadow:0 6px 16px rgba(0,0,0,.35)}}
+.swipe-bg{position:absolute;inset:0;display:flex;justify-content:space-between;align-items:center;padding:0 20px;font-weight:900;text-transform:uppercase;font-size:.85rem;letter-spacing:.06em}
+.swipe-bg span{opacity:0}
+.slot[data-dir=r] .swipe-bg{background:#b45309}.slot[data-dir=r] .swipe-bg .sl{opacity:1}
+.slot[data-dir=l] .swipe-bg{background:#b91c1c}.slot[data-dir=l] .swipe-bg .sr{opacity:1}
+.fg{position:relative;display:flex;min-height:154px;background:#1e293b;touch-action:pan-y;transition:transform .2s ease}
+.fg.dragging{transition:none}
+.numcol{width:46px;flex-shrink:0;background:#020617;border-right:2px solid #334155;color:#818cf8;font-weight:900;font-size:1.15rem;display:flex;align-items:center;justify-content:center}
+.content{flex:1;min-width:0;display:flex;gap:10px;padding:10px}
+.content.mid{align-items:center;justify-content:center;flex-direction:column;gap:6px;color:#64748b;font-weight:800;font-size:.8rem;text-transform:uppercase;letter-spacing:.08em}
+.plus{width:58px;height:58px;border-radius:50%;border:2px dashed #475569;display:flex;align-items:center;justify-content:center;font-size:2rem;color:#818cf8;font-weight:300}
+.photo{width:92px;height:128px;border-radius:10px;object-fit:cover;background:#334155;flex-shrink:0;align-self:flex-start}
+.right{flex:1;min-width:0;display:flex;flex-direction:column;gap:6px}
+.nm{font-size:.82rem;font-weight:900;text-transform:uppercase;color:#e2e8f0;line-height:1.15;padding-right:34px;word-break:break-word}
+.gtag{font-size:.6rem;font-weight:900;text-transform:uppercase;letter-spacing:.1em;margin-top:-3px}
+.right textarea{flex:1;min-height:62px;width:100%;resize:none;background:#020617;border:1px solid #334155;border-radius:8px;color:#cbd5e1;font-size:16px;line-height:1.35;padding:7px 9px;outline:none}
+.right textarea:focus{border-color:#4f46e5;color:#f1f5f9}
+.right textarea::placeholder{color:#475569;font-style:italic}
+.x{position:absolute;top:6px;right:6px;width:34px;height:34px;border-radius:50%;border:0;background:rgba(2,6,23,.75);color:#fca5a5;font-size:1rem;font-weight:900;display:flex;align-items:center;justify-content:center;z-index:3}
+.x:active{background:#b91c1c;color:#fff}
+
+/* ---------- Bottom bar ---------- */
+#bar{position:fixed;left:0;right:0;bottom:0;z-index:40;background:#020617;border-top:2px solid #312e81;display:grid;grid-template-columns:1.35fr 1fr 1fr 1fr 1fr;gap:6px;padding:8px 8px calc(8px + env(safe-area-inset-bottom))}
+.bb{border:0;border-radius:12px;background:#1e293b;color:#cbd5e1;font-weight:800;font-size:.62rem;text-transform:uppercase;letter-spacing:.04em;min-height:50px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;position:relative}
+.bb .ic{font-size:1.15rem;line-height:1}
+.bb:active{background:#334155}
+.bb.undo{background:#4f46e5;color:#fff;border-bottom:3px solid #312e81}
+.bb.undo:disabled{background:#1e293b;color:#475569;border-bottom:3px solid #0f172a}
+.badge{position:absolute;top:2px;right:6px;background:#f59e0b;color:#1c1917;border-radius:10px;font-size:.62rem;padding:1px 6px;font-weight:900}
+
+/* ---------- Picker ---------- */
+#picker{position:fixed;inset:0;z-index:60;background:#0f172a;display:flex;flex-direction:column;transform:translateY(100%);visibility:hidden;transition:transform .25s ease,visibility 0s .25s}
+#picker.open{transform:translateY(0);visibility:visible;transition:transform .25s ease}
+.ph{background:#020617;border-bottom:2px solid #4f46e5;padding:calc(8px + env(safe-area-inset-top)) 10px 8px;flex-shrink:0}
+.ph-top{display:flex;align-items:center;gap:10px;margin-bottom:8px}
+#p-close{width:40px;height:40px;border-radius:50%;border:1px solid #475569;background:rgba(255,255,255,.06);color:#cbd5e1;font-size:1.1rem;font-weight:800;flex-shrink:0}
+#p-title{flex:1;min-width:0;font-weight:900;font-size:.85rem;text-transform:uppercase;color:#a5b4fc;letter-spacing:.04em;line-height:1.2}
+#p-keepwrap{display:flex;align-items:center;gap:6px;font-size:.68rem;font-weight:800;color:#94a3b8;text-transform:uppercase;white-space:nowrap}
+#p-keepwrap input{width:22px;height:22px;accent-color:#6366f1}
+#p-search{width:100%;background:#0f172a;border:2px solid #334155;border-radius:999px;color:#fff;font-size:16px;padding:10px 16px;outline:none}
+#p-search:focus{border-color:#6366f1}
+.tabs{display:flex;gap:6px;margin-top:8px}
+.tabs button{flex:1;border:0;border-radius:10px;padding:10px 6px;background:#1e293b;color:#94a3b8;font-weight:900;font-size:.72rem;text-transform:uppercase;letter-spacing:.05em}
+.tabs button.on{background:#4f46e5;color:#fff}
+#p-chips{display:flex;gap:6px;overflow-x:auto;margin-top:8px;padding-bottom:2px;-webkit-overflow-scrolling:touch;scrollbar-width:none}
+#p-chips::-webkit-scrollbar{display:none}
+#p-chips button{flex-shrink:0;border:1px solid #334155;background:#0f172a;border-radius:999px;padding:6px 12px;font-size:.7rem;font-weight:900;text-transform:uppercase}
+#p-body{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:10px 8px calc(24px + env(safe-area-inset-bottom));overscroll-behavior:contain}
+#p-mode{background:#1e1b4b;border:1px solid #4338ca;color:#c7d2fe;border-radius:10px;padding:8px 10px;font-size:.74rem;margin-bottom:10px}
+.group{margin-bottom:18px;content-visibility:auto;contain-intrinsic-size:auto 400px}
+.group h2{margin:0 0 8px;text-align:center;font-size:.95rem;font-weight:900;text-transform:uppercase;letter-spacing:.14em}
+.group h2 small{font-size:.62rem;color:#64748b;letter-spacing:.05em;margin-left:6px}
+.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.tile{position:relative;border:2px solid #1e293b;background:#1e293b;border-radius:12px;padding:4px;color:#e2e8f0;display:flex;flex-direction:column;align-items:center;gap:4px}
+.tile:active{border-color:#f59e0b;background:#334155}
+.tile img{width:100%;aspect-ratio:3/4;object-fit:cover;border-radius:8px;background:#334155;display:block}
+.tile span{font-size:.62rem;font-weight:800;text-transform:uppercase;line-height:1.1;text-align:center;min-height:2.2em;display:flex;align-items:center}
+.tile .tx{position:absolute;top:6px;right:6px;width:28px;height:28px;border-radius:50%;background:rgba(2,6,23,.8);color:#fca5a5;font-size:.85rem;font-weight:900;display:flex;align-items:center;justify-content:center}
+.empty-msg{text-align:center;color:#64748b;padding:40px 10px;font-weight:700;font-size:.85rem}
+.sortbtn{width:100%;border:0;border-bottom:3px solid #b45309;background:#f59e0b;color:#1c1917;border-radius:10px;padding:12px;font-weight:900;font-size:.8rem;text-transform:uppercase;letter-spacing:.06em;margin-bottom:10px}
+.sortbtn:disabled{opacity:.4}
+
+/* group colours */
+.g-akb48{color:#ff69b4}.g-nmb48{color:#ff6a33}.g-nogizaka46{color:#c084fc}.g-hinatazaka46{color:#89cff0}.g-ske48{color:#facc15}.g-hkt48{color:#f472b6}.g-sakurazaka46{color:#a78bfa}.g-keyakizaka46{color:#34d399}.g-bokuao{color:#60a5fa}.g-ngt48{color:#ef4444}.g-stu48{color:#bae6fd}.g-bababambi{color:#ec4899}
+.g-morningmusume{background:linear-gradient(to bottom,#bf953f,#fcf6ba,#b38728,#fbf5b7,#aa771c);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+.g-nijicon{background:linear-gradient(to right,#ff0000,#ff7f00,#ffff00,#00ff00,#0000ff,#4b0082,#8b00ff);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+.g-fromis9,.g-cute,.g-kpop,.g-misc{color:#cbd5e1}
+
+/* ---------- Sheets / modals / toast ---------- */
+.sheet-back{position:fixed;inset:0;background:rgba(0,0,0,.65);z-index:100;display:flex;align-items:flex-end;justify-content:center}
+.sheet{width:100%;max-width:600px;background:#1e293b;border-top:3px solid #4f46e5;border-radius:20px 20px 0 0;padding:16px 14px calc(18px + env(safe-area-inset-bottom));max-height:85vh;overflow-y:auto;animation:up .2s ease}
+@keyframes up{from{transform:translateY(40px);opacity:0}to{transform:none;opacity:1}}
+.sh-head{display:flex;gap:12px;align-items:center;margin-bottom:14px}
+.sh-img{width:54px;height:74px;border-radius:8px;object-fit:cover;background:#334155}
+.sh-name{font-weight:900;text-transform:uppercase;font-size:.95rem}
+.sh-sub{color:#94a3b8;font-size:.75rem;font-weight:700;margin-top:2px}
+.sh-row{display:flex;gap:8px;align-items:center;margin-bottom:12px}
+.sh-row label{font-size:.75rem;font-weight:800;color:#a5b4fc;text-transform:uppercase;flex:1}
+.sh-row input{width:84px;background:#020617;border:2px solid #4f46e5;border-radius:10px;color:#fff;font-weight:900;font-size:18px;text-align:center;padding:10px 4px;outline:none}
+.sh-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.sh-note{color:#94a3b8;font-size:.74rem;line-height:1.5;margin:0 0 12px}
+.btn{border:0;border-radius:12px;padding:14px 10px;font-weight:900;font-size:.76rem;text-transform:uppercase;letter-spacing:.04em;background:#334155;color:#e2e8f0;border-bottom:3px solid #1e293b}
+.btn.pri{background:#4f46e5;border-bottom-color:#312e81;color:#fff}
+.btn.amber{background:#f59e0b;border-bottom-color:#b45309;color:#1c1917}
+.btn.red{background:#ef4444;border-bottom-color:#b91c1c;color:#fff}
+.btn.good{background:#22c55e;border-bottom-color:#15803d;color:#052e16}
+.btn.wide{grid-column:span 2}
+.jrow{display:flex;gap:10px;padding:11px 6px;border-bottom:1px solid #334155;font-family:ui-monospace,Menlo,monospace;font-size:.85rem}
+.jrow b{color:#818cf8;width:36px;flex-shrink:0}
+.jrow.e{color:#475569}
+#jfilter{width:100%;background:#020617;border:2px solid #334155;border-radius:999px;color:#fff;font-size:16px;padding:10px 16px;outline:none;margin-bottom:8px}
+
+.modal-back{position:fixed;inset:0;background:rgba(0,0,0,.78);z-index:130;display:flex;align-items:center;justify-content:center;padding:20px}
+.modal{background:#1e293b;border:2px solid var(--c,#4f46e5);border-radius:18px;padding:26px 22px;max-width:360px;width:100%;text-align:center;box-shadow:0 0 50px color-mix(in srgb,var(--c,#4f46e5) 35%,transparent)}
+.modal .mi{font-size:2.8rem;margin-bottom:8px}
+.modal h2{margin:0 0 10px;color:var(--c);font-size:1.05rem;font-weight:900;text-transform:uppercase;letter-spacing:.05em}
+.modal p{margin:0 0 20px;color:#94a3b8;font-size:.82rem;line-height:1.6}
+.modal p b{color:#e2e8f0}
+.modal .mb{display:flex;gap:10px}
+.modal .mb .btn{flex:1}
+
+#toast{position:fixed;left:50%;bottom:calc(84px + env(safe-area-inset-bottom));transform:translateX(-50%);z-index:150;background:#0b1220;border:1px solid #4f46e5;color:#e2e8f0;border-radius:12px;padding:10px 14px;font-size:.8rem;font-weight:700;display:flex;gap:12px;align-items:center;max-width:92vw;box-shadow:0 8px 24px rgba(0,0,0,.6);opacity:0;pointer-events:none;transition:opacity .2s}
+#toast.show{opacity:1;pointer-events:auto}
+#toast button{background:#4f46e5;color:#fff;border:0;border-radius:8px;padding:6px 12px;font-weight:900;font-size:.72rem;text-transform:uppercase}
+
+/* sort overlay */
+#sort{position:fixed;inset:0;background:rgba(10,15,28,.96);z-index:120;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:16px}
+#sort .st{color:#f59e0b;font-size:.72rem;font-weight:900;text-transform:uppercase;letter-spacing:.14em;margin-bottom:14px;text-align:center}
+#sort .pb{width:100%;max-width:420px;height:5px;background:#1e293b;border-radius:4px;margin-bottom:20px;overflow:hidden}
+#sort .pb div{height:100%;background:#f59e0b;width:0;transition:width .3s}
+#arena{display:flex;align-items:center;gap:8px;width:100%;max-width:460px}
+.pick{flex:1;min-width:0;display:flex;flex-direction:column;align-items:center;gap:10px;border:0;background:none;color:inherit;padding:0}
+.pick .ph2{width:100%;aspect-ratio:3/4;border:3px solid #334155;border-radius:16px;overflow:hidden}
+.pick:active .ph2{border-color:#f59e0b}
+.pick img{width:100%;height:100%;object-fit:cover;display:block}
+.pick .pn{font-size:.78rem;font-weight:900;text-transform:uppercase;text-align:center;color:#e2e8f0;line-height:1.15}
+.pick .pk{background:#4f46e5;color:#fff;border-bottom:3px solid #312e81;border-radius:10px;padding:10px 0;width:100%;font-size:.72rem;font-weight:900;text-transform:uppercase;letter-spacing:.06em}
+.vs{color:#4f46e5;font-size:1.3rem;font-weight:900}
+#sort .sc{margin-top:16px;color:#64748b;font-size:.72rem;font-weight:700;letter-spacing:.1em}
+#sort .sx{position:absolute;top:calc(12px + env(safe-area-inset-top));right:14px;width:40px;height:40px;border-radius:50%;border:1px solid #475569;background:rgba(255,255,255,.08);color:#94a3b8;font-size:1.1rem;font-weight:800}
+</style>
+</head>
+<body>
+
+<header id="top">
+  <div class="top-row">
+    <h1>Idol Ranker Pro</h1>
+    <div class="hbtns">
+      <button class="hbtn save" id="b-save">Save<span class="dot" id="dirty" hidden></span></button>
+      <button class="hbtn exp" id="b-export">Export</button>
+      <button class="hbtn rst" id="b-reset">Reset</button>
+    </div>
+  </div>
+  <div class="top-row">
+    <select id="preset" aria-label="Preset rankings">
+      <option value="">Preset… (choose one)</option>
+      <option value="derrek">Derrek</option>
+    </select>
+    <div id="count"></div>
+  </div>
+</header>
+
+<main id="board"></main>
+
+<nav id="bar">
+  <button class="bb undo" id="b-undo" disabled><span class="ic">↩</span><span id="undo-lbl">Undo</span></button>
+  <button class="bb" id="b-lib"><span class="ic">🔍</span>Library</button>
+  <button class="bb" id="b-hold"><span class="ic">⬇</span>Holding<span class="badge" id="hbadge" hidden>0</span></button>
+  <button class="bb" id="b-jump"><span class="ic">#</span>Jump</button>
+  <button class="bb" id="b-shift"><span class="ic">⇅</span>Shift</button>
+</nav>
+
+<section id="picker" aria-hidden="true">
+  <div class="ph">
+    <div class="ph-top">
+      <button id="p-close" aria-label="Close">✕</button>
+      <div id="p-title">Library</div>
+      <label id="p-keepwrap" hidden><input type="checkbox" id="p-keep"> Keep open</label>
+    </div>
+    <input id="p-search" type="search" placeholder="Search name or group…" autocomplete="off" autocapitalize="off" spellcheck="false">
+    <div class="tabs">
+      <button id="tab-lib" class="on">Library</button>
+      <button id="tab-hold">Holding Cell <span id="p-hcount"></span></button>
+    </div>
+    <div id="p-chips"></div>
+  </div>
+  <div id="p-body">
+    <div id="p-mode" hidden></div>
+    <div id="p-lib"></div>
+    <div id="p-hold" hidden></div>
+  </div>
+</section>
+
+<div id="toast"><span id="toast-msg"></span><button id="toast-undo" hidden>Undo</button></div>
+
+<script>
+const gh_main = "https://raw.githubusercontent.com/Vesicularorb/Databases/main/";
+        const gh_new = "https://raw.githubusercontent.com/Vesicularorb/photos/main/";
+        const gh_more = "https://raw.githubusercontent.com/Vesicularorb/more/main/";
+        const gh_er = "https://raw.githubusercontent.com/Vesicularorb/er/main/";
+
+        const photoMap = {
+            "Kitahara Rie": gh_new + "2017_NGT48_Kitahara_Rie.jpg",
+            "Akamatsu Sora": gh_new + "Akamatsu_Sora_NMB48_2025.jpg",
+            "Akita Rian": gh_new + "Akita_Rian_BokuAo_Apr_2026.jpg",
+            "Akiyama Yuna": gh_new + "Akiyama_Yuna_AKB48_2025_29.jpg",
+            "Anno Aoi": gh_new + "Anno_Aoi_BokuAo_Apr_2026.jpg",
+            "Fujizono Rei": gh_new + "Fujizono_Rei_AKB48_2022.jpg",
+            "Fukuno Ami": gh_new + "Fukuno_Ami_NMB48_2025.jpg",
+            "Haga Rei": gh_new + "Haga_Rei_NMB48_2025.jpg",
+            "Hanada Mei": gh_new + "Hanada_Mei_AKB48_2026.jpg",
+            "Hasegawa Hitomi": gh_new + "Hasegawa_Hitomi_BokuAo_Apr_2026.jpg",
+            "Hayasaki Suzuki": gh_new + "Hayasaki_Suzuki_BokuAo_Apr_2026.jpg",
+            "Itagaki Koyori": gh_new + "Itagaki_Koyori_NMB48_2025.jpg",
+            "Ito Momoka": gh_new + "Ito_Momoka_AKB48_2026.jpg",
+            "Ito Yuzu": gh_new + "Ito_Yuzu_BokuAo_Apr_2026.jpg",
+            "Iwamoto Riko": gh_new + "Iwamoto_Riko_BokuAo_Apr_2026.jpg",
+            "Kanazawa Ami": gh_new + "Kanazawa_Ami_BokuAo_Apr_2026.jpg",
+            "Kawamura Yui": gh_new + "Kawamura_Yui_AKB48_2026.jpg",
+            "Kinoshita Ai": gh_new + "Kinoshita_Ai_BokuAo_May_2025.jpg",
+            "Kinugasa Ayami": gh_new + "Kinugasa_Ayami_NMB48_2025.jpg",
+            "Kondo Saki": gh_new + "Kondo_Saki_AKB48_2025.jpg",
+            "Kudo Yua": gh_new + "Kudo_Yua_BokuAo_Apr_2026.jpg",
+            "Maruyama Hinata": gh_new + "Maruyama_Hinata_AKB48_2025.jpg",
+            "Miyahara Konon": gh_new + "Miyahara_Konon_NMB48_2025.jpg",
+            "Miyakoshi Yuria": gh_new + "Miyakoshi_Yuria_BokuAo_Apr_2026.jpg",
+            "Miyamoto Ami": gh_new + "Miyamoto_Ami_NMB48_2025.jpg",
+            "Mochinaga Mana": gh_new + "MochinagaMana-Nov2025.jpg",
+            "Nishimori Aya": gh_new + "Nishimori_Aya_BokuAo_Apr_2026.jpg",
+            "Nishizumi Misaki": gh_new + "Nishizumi_Misaki_NMB48_2025.jpg",
+            "Okumoto Kairi": gh_new + "Okumoto_Kairi_AKB48_2026.jpg",
+            "Sadano Haruka": gh_new + "Sadano_Haruka_NMB48_2023.jpg",
+            "Sakaguchi Nagisa": gh_new + "Sakaguchi_Nagisa_January_2024.jpg",
+            "Sato Masaki": gh_new + "SatoMasaki-15Thankyoutoo.jpg",
+            "Shiogama Nana": gh_new + "Shiogama_Nana_BokuAo_Apr_2026.jpg",
+            "Shiratori Sari": gh_new + "Shiratori_Sari_AKB48_2026.jpg",
+            "Sunaga Miuna": gh_new + "Sunaga_Miuna_BokuAo_Apr_2026.jpg",
+            "Takahashi Juna": gh_new + "Takahashi_Juna_NMB48_2025.jpg",
+            "Takeda Kyoka": gh_new + "Takeda_Kyoka_NMB48_2025.jpg",
+            "Tanaka Misora": gh_new + "Tanaka_Misora_NMB48_2025.jpg",
+            "Tanaka Rei": gh_new + "Tanaka_Rei_NMB48_2025.jpg",
+            "Yabuuchi Hinata": gh_new + "Yabuuchi_Hinata_NMB48_2025.jpg",
+            "Yaegashi Miisa": gh_new + "Yaegashi_Miisa_BokuAo_Apr_2026.jpg",
+            "Yagi Toa": gh_new + "Yagi_Toa_BokuAo_Apr_2026.jpg",
+            "Yanagihori Karen": gh_new + "Yanagihori_Karen_BokuAo_Apr_2026.jpg",
+            "Yoshimoto Cocona": gh_new + "Yoshimoto_Cocona_BokuAo_Apr_2026.jpg",
+            "Zenke Yurika": gh_new + "Zenke_Yurika_NMB48_2025.jpg",
+            "Kurihara Sae": gh_main + "2018_HKT48_Kurihara_Sae.jpg",
+            "Oda Erina": gh_main + "2019Odaerina.jpg",
+            "Fuchigami Mai": gh_main + "280px-FuchigamiMaiKIV2019.jpg",
+            "Kaki Haruka": gh_main + "280px-KakiDebut.jpg",
+            "Kakizaki Memi": gh_main + "280px-KakizakiMemiHinatazaka46.jpg",
+            "Kamimura Hinano": gh_main + "280px-KamimuraHinanoHinatazaka46.jpg",
+            "Kawata Hina": gh_main + "280px-KawataHinaHinatazaka46.jpg",
+            "Kitagawa Yuri": gh_main + "280px-KitagawaDebut.jpg",
+            "Oguri Yui": gh_main + "280px-OguriYui8June2019.png",
+            "Sato Shiori": gh_main + "280px-SatoShiori8June2019.png",
+            "Seimiya Rei": gh_main + "280px-SeimiyaDebut.jpg",
+            "Shibata Yuna": gh_main + "280px-ShibataDebut.jpg",
+            "Shitao Miu": gh_main + "280px-ShitaoMiu8June2019.png",
+            "Tsutsui Ayame": gh_main + "280px-TsutsuiDebut.jpg",
+            "Unjo Hirona": gh_main + "280px-UnjoHironaKIV2019.jpg",
+            "Yakubo Mio": gh_main + "280px-YakuboDebut.jpg",
+            "Yoshikawa Nanase": gh_main + "480px-YoshikawaNanase8July2018.jpg",
+            "Akiyoshi Yuka": gh_main + "482px-AkiyoshiYukaH2017.jpg",
+            "Harada Aoi": gh_main + "493px-HaradaFutari.jpg",
+            "Koike Minami": gh_main + "493px-KoikeFutari.jpg",
+            "Moriya Akane": gh_main + "493px-MoriyaFutari.jpg",
+            "Nagahama Neru": gh_main + "493px-NagahamaFutari.jpg",
+            "Sugai Yuuka": gh_main + "493px-SugaiFutari.jpg",
+            "Uemura Rina": gh_main + "493px-UemuraFutari.jpg",
+            "Abe Natsumi": gh_main + "Abe.jpg",
+            "Abe Maria": gh_main + "AbeMariaK2015.jpg",
+            "Arai Sae": gh_main + "Arai_Sae_AKB48_2023_29.jpg",
+            "Asao Momoka": gh_main + "Asao_Momoka_NMB48_2023.jpg",
+            "Cho Kurena": gh_main + "ChoKurenaA2018.jpg",
+            "Deguchi Yuina": gh_main + "Deguchi_Yuina_NMB48_2023.jpg",
+            "Endo Sakura": gh_main + "EndoDebut.jpg",
+            "Fukamura Mizuki": gh_main + "FukumuraMizuki.jpg",
+            "Niigaki Risa": gh_main + "Gaki.jpg",
+            "Goto Maki": gh_main + "Goto.jpg",
+            "Hama Sayuna": gh_main + "HamaSayuna8June2019.png",
+            "Hara Karen": gh_main + "Hara_Karen_NMB48_2023.jpg",
+            "Hashimoto Eriko": gh_main + "Hashimoto_Eriko_AKB48_2023.jpg",
+            "Hidaritomo Ayaka": gh_main + "HidaritomoAyaka82017.jpg",
+            "Morita Hikaru": gh_main + "Hikaru.jpg",
+            "Hirano Momona": gh_main + "HiranoMomonaKKS2018.jpg",
+            "Hiwatashi Yui": gh_main + "HiwatashiYuiB2019.jpg",
+            "Hongo Yuzuha": gh_main + "Hongo_Yuzuha_NMB48_2023.jpg",
+            "Hori Miona": gh_main + "HoriSynchronicity.jpg",
+            "Hoshino Minami": gh_main + "HoshinoMinami.jpg",
+            "Hotei Moka": gh_main + "Hotei_Moka_AKB48_2023.jpg",
+            "Iida Kaori": gh_main + "Iida.jpg",
+            "Ikuta Erika": gh_main + "IkutaErika.jpg",
+            "Imaizumi Yui": gh_main + "Imaizumi.jpg",
+            "Iikubo Haruna": gh_main + "Img2012121201432945.jpg",
+            "Iriyama Anna": gh_main + "IriyamaAnnaA2013.jpg",
+            "Ishibashi Ibuki": gh_main + "Ishibashi_Ibuki_HKT48_2022.jpg",
+            "Ishida Yuumi": gh_main + "Ishida_Yuumi_NMB48_2023.jpg",
+            "Ishikawa Rika": gh_main + "Ishikawa.jpg",
+            "Itano Tomomi": gh_main + "ItanoTomomi.jpg",
+            "Iwamoto Renka": gh_main + "IwamotoInfluencer.jpg",
+            "Iwatate Saho": gh_main + "IwatateSahoB2019.jpg",
+            "Jitoe Nene": gh_main + "Jitoe_Nene_HKT48_2022.jpg",
+            "Jonishi Rei": gh_main + "Jonishi_Rei_NMB48_2023.jpg",
+            "Junjun": gh_main + "Junjun_-_Kimagure_Princess_Promo.jpg",
+            "Kakehashi Sayaka": gh_main + "KakehashiDebut.jpg",
+            "Kamei Eri": gh_main + "Kamei.jpg",
+            "Kojima Karin": gh_main + "Karin.jpg",
+            "Kato Rena": gh_main + "KatoRena2016.jpg",
+            "Kawakami Chihiro": gh_main + "Kawakami_Chihiro_NMB48_2023.jpg",
+            "Masumoto Kira": gh_main + "Kira.jpg",
+            "Kitagawa Ryoha": gh_main + "KitagawaRyohaS2018.jpg",
+            "Kitano Hinako": gh_main + "KitanoHarujion.jpg",
+            "Kitano Ruka": gh_main + "KitanoRukaKII2018.jpg",
+            "Kizaki Yuria": gh_main + "KizakiYuriaB2017.jpg",
+            "Kohama Kokone": gh_main + "Kohama_Kokone_AKB48_2023.jpg",
+            "Kusumi Koharu": gh_main + "Koharu.jpg",
+            "Kojima Haruna": gh_main + "Kojima_haruna2012.jpg",
+            "Kojima Mako": gh_main + "KojimaMakoK2019.jpg",
+            "Komiyama Haruka": gh_main + "KomiyamaHarukaK2019.jpg",
+            "Konno Asami": gh_main + "KonKon.jpg",
+            "Kousaka Marino": gh_main + "Kousaka.jpg",
+            "Kubo Satone": gh_main + "KuboSatoneB2018.jpg",
+            "Sayashi Riho": gh_main + "Sayashi_01_img.jpg",
+            "Kuramochi Asuka": gh_main + "Kuramochi_asuka2012.jpg",
+            "Kuranoo Narumi": gh_main + "KuranooNarumi8June2019.png",
+            "Kuriyama Rina": gh_main + "Kuriyama_Rina_HKT48_2025_29.jpg",
+            "Kuroda Fuuwa": gh_main + "Kuroda_Fuuwa_NMB48_2023.jpg",
+            "Kuroshima Sakura": gh_main + "Kuroshima_Sakura_NMB48_2023.jpg",
+            "Lee Siyeon": gh_main + "Lee_Siyeon_NMB48_2023.jpg",
+            "Linlin": gh_main + "Linlin_coveryou.jpg",
+            "Ma Chia-Ling": gh_main + "MaChia-Ling42018.jpg",
+            "Maeda Atsuko": gh_main + "Maeda_atsuko2012.jpg",
+            "Maeda Ami": gh_main + "Maedaami.jpg",
+            "Shimizu Maria": gh_more + "Shimizu_Maria_AKB48_2020.jpg",
+            "Masai Mayuu": gh_main + "Masai_Mayuu_AKB48_2023.jpg",
+            "Matsui Jurina": gh_main + "MatsuiJurina2014.jpg",
+            "Matsui Rena": gh_main + "Matsuirenanatsu.jpg",
+            "Michishige Sayumi": gh_main + "Michi.jpg",
+            "Ichikawa Miori": gh_main + "MiorinNMB.jpg",
+            "Mitsui Aika": gh_main + "MitsuiSeishunCollection.jpg",
+            "Mizuta Shiori": gh_main + "Mizuta_Shiori_NMB48_2023.jpg",
+            "Mogi Shinobu": gh_main + "MogiShinobuK2019.jpg",
+            "Mukaichi Mion": gh_main + "MukaichiMion2016.jpg",
+            "Murayama Yuiri": gh_main + "MurayamaYuiri42019.jpg",
+            "Muto Orin": gh_main + "MutoOrinK2019.jpg",
+            "Muto Tomu": gh_main + "MutoTomuK2019.jpg",
+            "Nakazawa Yuko": gh_main + "NakazawaYuko-March2022.jpg",
+            "Yamada Nana": gh_main + "NanaJune2013.jpg",
+            "Nibu Kaze": gh_main + "NibuKaze.jpg",
+            "Nishino Hadashi": gh_main + "NishinoHadashi.jpg",
+            "Nishino Miki": gh_main + "NishinoMiki2015.jpg",
+            "Okabe Rin": gh_main + "OkabeRinA2019.jpg",
+            "Oshima Mai": gh_main + "OshimaMai.jpg",
+            "Oshima Yuko": gh_main + "Oshima_yuko2012.jpg",
+            "Owada Nana": gh_main + "OwadaNana2016.jpg",
+            "Ozono Rei": gh_main + "OzonoRei.jpg",
+            "Saito Asuka": gh_main + "SaitoAsukaKaerimichi.jpg",
+            "Sakagawa Hiyuka": gh_main + "Sakagawa_Hiyuka_AKB48_2023.jpg",
+            "Sakamoto Risa": gh_main + "Sakamoto_Risa_NMB48_2023.jpg",
+            "Sakashita Mako": gh_main + "Sakashita_Mako_NMB48_2023.jpg",
+            "Sako Yumemi": gh_main + "Sako_Yumemi_AKB48_2023_29.jpg",
+            "Sato Airi": gh_main + "Sato_Airi_AKB48_2023.jpg",
+            "Shibuya Nagisa": gh_main + "ShibuyaNagisaM2019.jpg",
+            "Shimazaki Haruka": gh_main + "ShimazakiHarukaB2013.jpg",
+            "Shinoda Mariko": gh_main + "Shinoda_mariko2012.jpg",
+            "Shinzawa Nao": gh_main + "Shinzawa_Nao_NMB48_2023.jpg",
+            "Shiraishi Mai": gh_main + "Shiraishimai_prof.jpg",
+            "Shiroma Miru": gh_main + "ShiromaMiruM2019.jpg",
+            "Suda Akari": gh_main + "SudaAkariE2017.jpg",
+            "Sumino Wakana": gh_main + "Sumino_Wakana_NMB48_2023.jpg",
+            "Suzuki img": gh_main + "Suzukiimg.jpg",
+            "Takahashi Ayane": gh_main + "TakahashiAyane8June2019.png",
+            "Takahashi Minami": gh_main + "Takahashi_minami2012.jpg",
+            "Takajo Aki": gh_main + "Takajo_aki2012.jpg",
+            "Takayama Kazumi": gh_main + "TakayamaKaerimichi.jpg",
+            "Tamura Debut": gh_main + "TamuraDebut.jpg",
+            "Tamura Hono": gh_main + "TamuraHono.jpg",
+            "Tanaka Miku": gh_main + "TanakaMikuH2018.jpg",
+            "Tanaka Yukino": gh_main + "Tanaka_Yukino_NMB48_2023.jpg",
+            "Taniguchi Megu": gh_main + "TaniguchiMeguB2019.jpg",
+            "Tanikawa Hijiri": gh_main + "TanikawaHijiriA2018.jpg",
+            "Tano Yuka": gh_main + "TanoYukaK2017.jpg",
+            "Tatsumoto Yayoi": gh_main + "Tatsumoto_Yayoi_NMB48_2023.jpg",
+            "Umeda Ayaka": gh_main + "Umeda_ayaka2012.jpg",
+            "Umeyama Cocona": gh_main + "UmeyamaCoconaBII2019.jpg",
+            "Umezawa Minami": gh_main + "UmezawaKaerimichi.jpg",
+            "Wada Miyu": gh_main + "Wada_Miyu_NMB48_2023.jpg",
+            "Watanabe Mayu": gh_main + "WatanabeMayu2016.jpg",
+            "Watanabe Miho": gh_main + "WatanabeMiho6th.jpg",
+            "Yabuki Nako": gh_main + "YabukiNakoH2018.jpg",
+            "Yagami Kumi": gh_main + "Yagami_kumi.jpg",
+            "Yagura Fuuko": gh_main + "YaguraFuuko2014Shuffle.jpg",
+            "Yahagi Moeka": gh_main + "YahagiMoekaK2019.jpg",
+            "Yajima Maimi": gh_main + "YajimaMaimi2018November.jpg",
+            "Yamaguchi Yui": gh_main + "Yamaguchi_Yui_AKB48_2023_29.jpg",
+            "Yamamoto Sayaka": gh_main + "YamamotoSayakaK2015.jpg",
+            "Yamashita Mizuki": gh_main + "YamashitaKaerimichi.jpg",
+            "Yamauchi Mizuki": gh_main + "YamauchiMizuki42018.jpg",
+            "Yoda Yuuki": gh_main + "YodaKaerimichi.jpg",
+            "Yokono Sumire": gh_main + "Yokono_Sumire_NMB48_2020.jpg",
+            "Yokoyama Yui": gh_main + "YokoyamaYui2016.jpg",
+            "Yoshida Akari": gh_main + "YoshidaAkariM2017.jpg",
+            "Ito Miki": gh_main + "ito_miki.jpg",
+            "Usa": gh_main + "large_宇咲.jpg",
+            "Takanashi Rui": gh_main + "large_小鳥遊るい.jpg",
+            "Ota Aika": gh_main + "oota_aika.jpg",
+            "Sashihara Rino": gh_main + "sashihara_rino.jpg",
+            "Suzumoto Miyu": gh_more + "2019_Kuroi_Hitsuji_Suzumoto_Miyu.jpg",
+            "Nagasawa Nanako": gh_more + "2020_Nagasawa_Nanako.jpg",
+            "Akimoto Manatsu": gh_more + "Akimoto_Manatsu_Kimi_ni_Shikarareta.jpg",
+            "Endo Riko": gh_more + "Endo_Riko.jpg",
+            "Futamura Haruka": gh_more + "Futamura.jpg",
+            "Yamauchi Yuna": gh_more + "HKT%20Yuna.jpg",
+            "Higashimura Mei": gh_more + "HigashimuraMei.jpg",
+            "Hirate Yurina": gh_more + "HirateYurina.jpg",
+            "Iguchi Mao": gh_more + "IguchiMao.jpg",
+            "Ikeda Teresa": gh_more + "Ikeda_Teresa_N46_Mar_2026.jpg",
+            "Inoue Nagi": gh_more + "Inoue_Nagi_N46_Mar_2026.jpg",
+            "Ioki Mao": gh_more + "Ioki_Mao_N46_Mar_2026.jpg",
+            "Ishida Anna": gh_more + "Ishida.jpg",
+            "Kato Shiho": gh_more + "KatoShiho.jpg",
+            "Kawabata Hina": gh_more + "Kawabata_Hina_N46_Mar_2026.jpg",
+            "Kawasaki Sakura": gh_more + "Kawasaki_Sakura_N46_Mar_2026.jpg",
+            "Kosaka Nao": gh_more + "KosakaNao6th.jpg",
+            "Kubo Shiori": gh_more + "Kubo%20Shiori.jpg",
+            "Manabe Anju": gh_more + "Manabe_Anju_NMB48_2023.jpg",
+            "Masuda Mirine": gh_more + "Masuda_Mirine_N46_Mar_2026.jpg",
+            "Matsuda Konoka": gh_more + "MatsudaKonoka1stAlbum.jpg",
+            "Matsuda Rina": gh_more + "Matsuda_Rina_S46_Feb_2026.jpg",
+            "Matsuo Sakura": gh_more + "Matsuo_Sakura.jpg",
+            "Miyachi Sumire": gh_more + "Miyachi_Sumire.jpg",
+            "Miyata Manamo": gh_more + "MiyataManamo.jpg",
+            "Morihira Urumi": gh_more + "Morihira_Urumi_N46_Mar_2026.jpg",
+            "Morimoto Marii": gh_more + "Morimoto_Marie_H46_Jan_2026.jpg",
+            "Nakamoto Himeka": gh_more + "N46_Nakamoto_Himeka_Sun.jpg",
+            "Nakada Kana": gh_more + "Nakada_Kana_N46_Kaerimichi.jpg",
+            "Nakanishi Aruno": gh_more + "Nakanishi_Aruno_N46_Mar_2026.jpg",
+            "Nibu Akari": gh_more + "Nibu.jpg",
+            "Nishino Nanase": gh_more + "NishinoNanase2016.jpg",
+            "Ogawa Aya": gh_more + "Ogawa_Aya_N46_Mar_2026.jpg",
+            "Ono Manami": gh_more + "Ono_Manami.jpg",
+            "Ota Yuki": gh_more + "Ota_Yuki_AKB48_2023.jpg",
+            "Ozu Reina": gh_more + "Ozu_Reina_N46_June_2025.jpg",
+            "Goto Rara": gh_more + "Rara.jpg",
+            "Sakamoto Erena": gh_more + "Sakamoto%20Erena.jpg",
+            "Sakurai Reika": gh_more + "Sakurai_Reika_N46_Synchronicity.jpg",
+            "Sasaki Mirei": gh_more + "Sasaki_Mirei.jpg",
+            "Setoguchi Mitsuki": gh_more + "Setoguchi_Mitsuki_N46_Mar_2026.jpg",
+            "Shimizu Rio": gh_more + "Shimizu_Rio.jpg",
+            "Shogenji Yoko": gh_more + "Shogenji_Yoko.jpg",
+            "Tamura Mayu": gh_more + "TamuraDebut.jpg",
+            "Tanaka Reina": gh_more + "Tanaka%20Reina.jpg",
+            "Wakatsuki Yumi": gh_more + "WakatsukiYumi2016.jpg",
+            "Watanabe Miyuki": gh_more + "WatanabeMiyuki2014.jpg",
+            "Yada Moeka": gh_more + "Yada_Moeka_N46_Mar_2026.jpg",
+            "Yagi Azuki": gh_more + "Yagi_Azuki_AKB48_2023_29.jpg",
+            "Yamaguchi Haruyo": gh_more + "Yamaguchi_Haruyo.jpg",
+            "Ten Yamasaki": gh_more + "Yamasaki_Ten_S46_Feb_2026.jpg",
+            "Yamashita Haruka": gh_more + "Yamashita_Haruka.jpg",
+            "Yamashita Shizuki": gh_more + "Yamashita_Shizuki.jpg",
+            "Baek Jiheon": gh_er + "Baek%20Jiheon.png",
+            "Eto Misa": gh_er + "EtoMisa.jpg",
+            "Eura Yuka": gh_er + "Eura_Yuka.jpg",
+            "Fujino Kokoha": gh_er + "Fujino_Kokoha.jpg",
+            "Fukagawa Mai": gh_er + "FukagawaMai.jpg",
+            "Hamagishi Hiyori": gh_er + "Hamagishi%20Hiyori.jpg",
+            "Song Hayoung": gh_er + "Hayoung.png",
+            "Higuchi Hina": gh_er + "HiguchiHina.jpg",
+            "Ichinose Kohina": gh_er + "IchinoseKohina.jpg",
+            "Kishi Miyu": gh_er + "KishiMiyu.jpeg",
+            "Kodama Haruka": gh_er + "KodamaHarukaH2016.jpg",
+            "Saeko Kondo": gh_er + "Kondo%20Saeko.jpg",
+            "Lee Nakyung": gh_er + "Lee%20Nakyung.png",
+            "Lee Saerom": gh_er + "Lee%20Saerom.png",
+            "Morisaki Saaya": gh_er + "Morisaki_Saaya.jpg",
+            "Motomura Aoi": gh_er + "Motomura_Aoi.jpg",
+            "Nakajima Saki": gh_er + "Nakajima%20Saki.jpg",
+            "Ozono Momoko": gh_er + "OzonoMomoko.jpg",
+            "Roh Jisun": gh_er + "Roh%20Jisun.png",
+            "Ryuto Ayane": gh_er + "Ryuto_Ayane.jpg",
+            "Matsumura Sayuri": gh_er + "Sayuri.jpg",
+            "Shibui Mina": gh_er + "Shibui_Mina.jpg",
+            "Suzuki Airi": gh_er + "SuzukiAiri.jpg",
+            "Takahashi Ai": gh_er + "TakahashiAi.jpg",
+            "Tashima Meru": gh_er + "TashimaMeru.jpg",
+            "Morihara Urumi": gh_er + "Urumi.jpg",
+            "Yamashita Emiri": gh_er + "Yamashita_Emiri.jpg",
+            "Yanase Reia": gh_er + "Yanase_Reia.jpg",
+            "Nagata Shiori": gh_er + "Nagata_Shiori.jpg",
+            "Omori Rio": gh_er + "Ohmori_rio.jpg",
+            "Okada Ayame": gh_er + "OkadaAyame.jpg",
+            "Tsurumi Moe": gh_er + "Tsurumi_Moe.jpg",
+            "Hiruta Airi": gh_er + "Hirutaairi.jpg",
+            "Ishihama Mei": gh_er + "Ishihamamei.jpg",
+            "Seiji Reina": gh_er + "Seiji_Reina.jpg",
+            "Otsuka Nanami": gh_er + "Otsuka_Nanami.jpg",
+            "Sugimoto Moe": gh_er + "Sugimoto_Moe.jpg",
+            "Sato Hiroka": gh_er + "Sato_Hiroka.jpg",
+            "Suto Rinka": gh_er + "Suto_Rinka.jpg",
+            "Suzuki Ririka": gh_er + "Suzuki_Ririka.jpg",
+            "Honda Miyuki": gh_er + "Honda_Miyuki.jpg",
+            "Ochiai Kirari": gh_er + "Ochiai_Kirari.jpg",
+            "Fu Yaning": gh_more + "Yaning..jpg",
+            "Sakamoto Mashiro": gh_more + "Mashiro..jpg",
+            "Yeseo": gh_more + "Yeseo..jpg",
+            "Kang Hyewon": gh_more + "Kang_Hyewon.jpg",
+            "Yujeong": gh_more + "YUJEONG.jpg",
+            "Hina": gh_more + "HINA.jpg",
+            "Kim Nayoung": gh_more + "NAYOUNG.jpg",
+            "Sangah": gh_more + "SANGAH.jpg",
+            "Kim Chaewon": gh_more + "Kim_Chaewon.jpg",
+            "Choi Yena": gh_more + "Choi_Yena.jpg",
+            "Jang Wonyoung": gh_more + "IVE_Jang_Wonyoung.jpg",
+            "Ahn Yujin": gh_more + "IVE_An_Yujin.jpg",
+            "Mineyoshi Arisa": gh_more + "Mineyoshi_Arisa.jpg",
+            "Shintani Nonoka": gh_more + "2018_STU48_Shintani_Nonoka.jpg",
+            "Iwata Hina": gh_more + "Iwata_Hina.jpg",
+            "Okuda Yuina": gh_more + "Okuda_Yuina.jpg",
+            "Okada Azumi": gh_more + "Okada_Azumi.jpg",
+            "Okamura Rio": gh_more + "Okamura_Rio.jpg",
+            "Kurushima Yuka": gh_more + "Kurushima_Yuka.jpg",
+            "Morokuzu Noa": gh_more + "Morokuzu_Noa.jpg",
+            "Takao Sayaka": gh_more + "Takao_Sayaka.jpg",
+            "Kudo Riko": gh_more + "Kudo_Riko.jpg",
+            "Saito Makiko": gh_more + "Saito_makiko.jpg",
+            "Shibata Aya": gh_more + "Shibata_Aya.jpg",
+            "Kumazaki Haruka": gh_more + "Kumazaki_Haruka.jpg",
+            "Aoumi Hinano": gh_more + "Aoumi_Hinano.jpg",
+            "Kurashima Ami": gh_more + "Kurashima_Ami.jpg",
+            "Iriuchijima Sayaka": gh_more + "Iriuchijima_Sayaka.jpg",
+            "Sugimoto Rina": gh_more + "Sugimoto_Riina.jpg",
+            "Hara Yune": gh_more + "Hara_Yune.jpg",
+            "Omura Anzu": gh_more + "Omura_Anzu.jpg",
+            "Morimoto Kurumi": gh_more + "Morimoto_Kurumi.jpg",
+            "Hayashi Mirei": gh_more + "Hayashi_Mirei.jpg",
+            "Hasegawa Miyabi": gh_more + "Hasegawa_Miyabi_SKE48_2025_29.jpg",
+            "Oba Mina": gh_more + "2018_SKE48_Oba_Mina.jpg",
+            "Nakamura Izumi": gh_more + "Nakamura_Izumi.jpg",
+            "Sakaguchi Tamami": gh_er + "Sakaguchi_Tamami.jpg",
+            "Yasuda Momone": gh_er + "Yasuda_Momone.jpg",
+            "Yamao Rina": gh_er + "NMB48_Yamao_Rina.jpg",
+            "Oda Sakura": gh_er + "OdaSakura.jpg",
+            "Fujimoto Miki": gh_er + "Fujimoto_Miki.jpg",
+            "Jeonghwa": gh_er + "jeonghwa.jpg",
+            "Hani": gh_er + "hani.jpg",
+            "Kurosaka Miu": gh_er + "Kurosaka_Miu.jpg",
+            "Fukuda Akari": gh_er + "Fukuda_Akari.jpg",
+            "Takayanagi Akane": gh_er + "Takayanagi_Akane.jpg",
+            "Obata Yuna": gh_er + "ObataYuna.jpg",
+            "Yamamura Sakura": gh_er + "Yamamura_Sakura.jpg",
+            "Hirao Honoka": gh_er + "Hirao_Honoka.jpg",
+            "Park Choa": gh_er + "Park_Choa.jpg",
+            "Hirata Yuki": gh_er + "Hirata_Yuki.jpg"
+        };
+
+const idolData = {
+  "AKB48": [
+    "Maeda Atsuko",
+    "Oshima Yuko",
+    "Watanabe Mayu",
+    "Hotei Moka",
+    "Shinoda Mariko",
+    "Itano Tomomi",
+    "Mukaichi Mion",
+    "Shimizu Maria",
+    "Yamauchi Mizuki",
+    "Takahashi Minami",
+    "Kuramochi Asuka",
+    "Yokoyama Yui",
+    "Shimazaki Haruka",
+    "Iriyama Anna",
+    "Ichikawa Miori",
+    "Komiyama Haruka",
+    "Muto Tomu",
+    "Tano Yuka",
+    "Kato Rena",
+    "Takajo Aki",
+    "Kitahara Rie",
+    "Oguri Yui",
+    "Taniguchi Megu",
+    "Fujizono Rei",
+    "Arai Sae",
+    "Akiyama Yuna",
+    "Yagi Azuki",
+    "Yamaguchi Yui",
+    "Ito Momoka",
+    "Kubo Satone",
+    "Hiwatashi Yui",
+    "Owada Nana",
+    "Murayama Yuiri",
+    "Hashimoto Eriko",
+    "Sato Airi",
+    "Okumoto Kairi",
+    "Hanada Mei",
+    "Maruyama Hinata",
+    "Shiratori Sari",
+    "Kondo Saki",
+    "Shitao Miu",
+    "Iwatate Saho",
+    "Okabe Rin",
+    "Kawamura Yui",
+    "Mogi Shinobu",
+    "Muto Orin",
+    "Ma Chia-Ling",
+    "Oda Erina",
+    "Yoshikawa Nanase",
+    "Hama Sayuna",
+    "Sakaguchi Nagisa",
+    "Takahashi Ayane",
+    "Hidaritomo Ayaka",
+    "Kohama Kokone",
+    "Sato Shiori",
+    "Cho Kurena",
+    "Abe Maria",
+    "Masai Mayuu",
+    "Sako Yumemi",
+    "Ota Yuki",
+    "Sakagawa Hiyuka",
+    "Nishino Miki",
+    "Hirata Yuki"
+  ],
+  "Morning Musume": [
+    "Iida Kaori",
+    "Abe Natsumi",
+    "Ishikawa Rika",
+    "Goto Maki",
+    "Konno Asami",
+    "Niigaki Risa",
+    "Kamei Eri",
+    "Junjun",
+    "Kusumi Koharu",
+    "Iikubo Haruna",
+    "Michishige Sayumi",
+    "Takahashi Ai",
+    "Tanaka Reina",
+    "Fukamura Mizuki",
+    "Sato Masaki",
+    "Nakazawa Yuko",
+    "Linlin",
+    "Sayashi Riho",
+    "Fujimoto Miki",
+    "Oda Sakura"
+  ],
+  "Bokuao": [
+    "Yagi Toa",
+    "Sunaga Miuna",
+    "Yanagihori Karen",
+    "Akita Rian",
+    "Yaegashi Miisa",
+    "Anno Aoi",
+    "Kanazawa Ami",
+    "Mochinaga Mana",
+    "Hasegawa Hitomi",
+    "Kinoshita Ai",
+    "Ito Yuzu",
+    "Miyakoshi Yuria",
+    "Yoshimoto Cocona",
+    "Shiogama Nana",
+    "Nishimori Aya",
+    "Hayasaki Suzuki",
+    "Iwamoto Riko",
+    "Kudo Yua"
+  ],
+  "NMB48": [
+    "Yamamoto Sayaka",
+    "Watanabe Miyuki",
+    "Shiroma Miru",
+    "Kawakami Chihiro",
+    "Shibuya Nagisa",
+    "Jonishi Rei",
+    "Yamada Nana",
+    "Takeda Kyoka",
+    "Sakamoto Risa",
+    "Kuroshima Sakura",
+    "Sakashita Mako",
+    "Tatsumoto Yayoi",
+    "Akamatsu Sora",
+    "Miyahara Konon",
+    "Umeyama Cocona",
+    "Tanaka Misora",
+    "Tanaka Yukino",
+    "Haga Rei",
+    "Kinugasa Ayami",
+    "Itagaki Koyori",
+    "Yabuuchi Hinata",
+    "Miyamoto Ami",
+    "Nishizumi Misaki",
+    "Zenke Yurika",
+    "Tanaka Rei",
+    "Fukuno Ami",
+    "Takahashi Juna",
+    "Sadano Haruka",
+    "Yokono Sumire",
+    "Shinzawa Nao",
+    "Deguchi Yuina",
+    "Hara Karen",
+    "Asao Momoka",
+    "Sumino Wakana",
+    "Manabe Anju",
+    "Wada Miyu",
+    "Lee Siyeon",
+    "Yamao Rina",
+    "Yasuda Momone",
+    "Hongo Yuzuha",
+    "Kuroda Fuuwa"
+  ],
+  "Nogizaka46": [
+    "Shiraishi Mai",
+    "Hori Miona",
+    "Kubo Shiori",
+    "Kaki Haruka",
+    "Tamura Mayu",
+    "Kitano Hinako",
+    "Nakanishi Aruno",
+    "Iwamoto Renka",
+    "Umezawa Minami",
+    "Setoguchi Mitsuki",
+    "Masuda Mirine",
+    "Morihara Urumi",
+    "Yada Moeka",
+    "Kawabata Hina",
+    "Ozono Momoko",
+    "Ozu Reina",
+    "Kawasaki Sakura",
+    "Ogawa Aya",
+    "Ioki Mao",
+    "Inoue Nagi",
+    "Endo Sakura",
+    "Kakehashi Sayaka",
+    "Kitagawa Yuri",
+    "Shibata Yuna",
+    "Seimiya Rei",
+    "Tsutsui Ayame",
+    "Yakubo Mio",
+    "Yamashita Mizuki",
+    "Hoshino Minami",
+    "Akimoto Manatsu",
+    "Ikuta Erika",
+    "Eto Misa",
+    "Sakurai Reika",
+    "Takayama Kazumi",
+    "Nakada Kana",
+    "Nakamoto Himeka",
+    "Nishino Nanase",
+    "Higuchi Hina",
+    "Fukagawa Mai",
+    "Matsumura Sayuri",
+    "Wakatsuki Yumi",
+    "Ikeda Teresa",
+    "Sakaguchi Tamami"
+  ],
+  "Sakurazaka46": [
+    "Matsuda Rina",
+    "Endo Riko",
+    "Morita Hikaru",
+    "Uemura Rina",
+    "Sugai Yuuka",
+    "Moriya Akane",
+    "Koike Minami",
+    "Ten Yamasaki",
+    "Harada Aoi",
+    "Masumoto Kira",
+    "Tamura Hono",
+    "Kousaka Marino",
+    "Yamashita Shizuki",
+    "Suzumoto Miyu"
+  ],
+  "Keyakizaka46": [
+    "Nagahama Neru",
+    "Imaizumi Yui",
+    "Suzumoto Miyu",
+    "Nagasawa Nanako",
+    "Hirate Yurina"
+  ],
+  "Hinatazaka46": [
+    "Kosaka Nao",
+    "Kato Shiho",
+    "Nibu Akari",
+    "Kawata Hina",
+    "Sasaki Mirei",
+    "Miyata Manamo",
+    "Watanabe Miho",
+    "Shogenji Yoko",
+    "Shimizu Rio",
+    "Kamimura Hinano",
+    "Matsuda Konoka",
+    "Morimoto Marii",
+    "Yamaguchi Haruyo",
+    "Miyachi Sumire",
+    "Iguchi Mao",
+    "Kakizaki Memi",
+    "Higashimura Mei",
+    "Hamagishi Hiyori",
+    "Yamashita Haruka",
+    "Matsuo Sakura",
+    "Ono Manami",
+    "Hirao Honoka"
+  ],
+  "SKE48": [
+    "Suda Akari",
+    "Matsui Jurina",
+    "Nakamura Izumi",
+    "Oba Mina",
+    "Hirano Momona",
+    "Hasegawa Miyabi",
+    "Hayashi Mirei",
+    "Morimoto Kurumi",
+    "Hara Yune",
+    "Sugimoto Rina",
+    "Omura Anzu",
+    "Iriuchijima Sayaka",
+    "Kizaki Yuria",
+    "Ito Miki",
+    "Yagami Kumi",
+    "Kurashima Ami",
+    "Aoumi Hinano",
+    "Goto Rara",
+    "Futamura Haruka",
+    "Kumazaki Haruka",
+    "Shibata Aya",
+    "Kitagawa Ryoha",
+    "Saito Makiko",
+    "Kitano Ruka",
+    "Ishida Anna",
+    "Matsui Rena",
+    "Yamamura Sakura",
+    "Obata Yuna",
+    "Takayanagi Akane"
+  ],
+  "HKT48": [
+    "Ota Aika",
+    "Kodama Haruka",
+    "Sashihara Rino",
+    "Tanaka Miku",
+    "Motomura Aoi",
+    "Akiyoshi Yuka",
+    "Tashima Meru",
+    "Fuchigami Mai",
+    "Kurihara Sae",
+    "Yamauchi Yuna",
+    "Yamashita Emiri",
+    "Sakamoto Erena",
+    "Yabuki Nako",
+    "Unjo Hirona",
+    "Ishibashi Ibuki",
+    "Jitoe Nene",
+    "Shibui Mina",
+    "Fujino Kokoha",
+    "Yanase Reia",
+    "Morisaki Saaya",
+    "Eura Yuka",
+    "Ryuto Ayane"
+  ],
+  "STU48": [
+    "Kudo Riko",
+    "Fukuda Akari",
+    "Okada Azumi",
+    "Okuda Yuina",
+    "Okamura Rio",
+    "Kurushima Yuka",
+    "Morokuzu Noa",
+    "Iwata Hina",
+    "Shintani Nonoka",
+    "Mineyoshi Arisa",
+    "Takao Sayaka"
+  ],
+  "NGT48": [
+    "Sato Hiroka",
+    "Sugimoto Moe",
+    "Seiji Reina",
+    "Otsuka Nanami",
+    "Suzuki Ririka",
+    "Suto Rinka"
+  ],
+  "Nijicon": [
+    "Hiruta Airi",
+    "Ishihama Mei",
+    "Tsurumi Moe",
+    "Okada Ayame"
+  ],
+  "Bababambi": [
+    "Kishi Miyu",
+    "Ichinose Kohina",
+    "Takanashi Rui",
+    "Usa",
+    "Saeko Kondo"
+  ],
+  "Fromis_9": [
+    "Baek Jiheon",
+    "Lee Saerom",
+    "Roh Jisun",
+    "Song Hayoung",
+    "Lee Nakyung"
+  ],
+  "C-ute": [
+    "Yajima Maimi",
+    "Suzuki Airi",
+    "Nakajima Saki"
+  ],
+  "K-pop": [
+    "Sakamoto Mashiro",
+    "Yeseo",
+    "Ahn Yujin",
+    "Jang Wonyoung",
+    "Kang Hyewon",
+    "Kim Chaewon",
+    "Kim Nayoung",
+    "Sangah",
+    "Hina",
+    "Yujeong",
+    "Choi Yena",
+    "Fu Yaning",
+    "Park Choa",
+    "Hani",
+    "Jeonghwa"
+  ],
+  "Misc": [
+    "Omori Rio",
+    "Nagata Shiori",
+    "Honda Miyuki",
+    "Ochiai Kirari",
+    "Kurosaka Miu"
+  ]
+};
+
+// Presets: ordered lists, rank 1 first. null = a name from the list that is not in the library yet (that rank is left empty).
+const PRESETS = {
+  derrek: { label: "Derrek", list: ["Koike Minami", "Watanabe Mayu", "Okabe Rin", "Takahashi Ai", "Shiraishi Mai", "Niigaki Risa", "Mukaichi Mion", "Yamashita Mizuki", "Tanaka Reina", "Hori Miona", "Imaizumi Yui", null, "Matsuda Rina", "Baek Jiheon", "Ikuta Erika", "Iwamoto Renka", "Ten Yamasaki", "Kamei Eri", "Kaki Haruka", "Murayama Yuiri", "Maeda Atsuko", "Yokoyama Yui", "Takahashi Minami", "Kitano Ruka", "Ahn Yujin", "Kakehashi Sayaka", "Ishikawa Rika", "Hoshino Minami", "Tanaka Yukino", "Fu Yaning", "Kishi Miyu", "Matsui Jurina", "Goto Rara", "Roh Jisun", "Tsutsui Ayame", "Nagahama Neru", "Kato Rena", "Umeyama Cocona", "Nakajima Saki", "Yeseo", "Yajima Maimi", "Kawata Hina", "Lee Saerom", "Goto Maki", "Suzuki Airi", "Kitano Hinako", "Shibuya Nagisa", "Sadano Haruka", "Sakamoto Erena", "Hirata Yuki", "Tamura Mayu", "Hirano Momona", "Oguri Yui", "Kawakami Chihiro", "Akiyoshi Yuka", "Owada Nana", "Tamura Hono", "Harada Aoi", "Tanaka Miku", "Hongo Yuzuha", "Hiwatashi Yui", "Kim Chaewon", "Kubo Shiori", "Junjun", "Kitagawa Ryoha", "Matsuda Konoka", "Suda Akari", "Yabuki Nako", "Watanabe Miyuki", "Omori Rio", "Kuroshima Sakura", "Takahashi Ayane", "Sugai Yuuka", "Abe Natsumi", "Michishige Sayumi", "Shitao Miu", "Sumino Wakana", "Iida Kaori", "Nakamura Izumi", "Asao Momoka", "Kato Shiho", "Sakashita Mako", "Lee Siyeon", "Shinzawa Nao", "Fujimoto Miki", "Takayanagi Akane", "Seimiya Rei", "Hamagishi Hiyori", "Watanabe Miho", "Kitahara Rie", "Kohama Kokone", "Sakamoto Risa", "Tatsumoto Yayoi", "Moriya Akane", "Shimizu Maria", "Taniguchi Megu", "Ozono Momoko", "Konno Asami", "Iguchi Mao", "Oba Mina", "Hashimoto Eriko", "Ishida Anna", "Ikeda Teresa", "Unjo Hirona", "Nakanishi Aruno", "Jonishi Rei", "Yamaguchi Haruyo", "Obata Yuna", "Hayashi Mirei", "Nagata Shiori", "Linlin", "Kuroda Fuuwa", "Ogawa Aya", "Saito Makiko", "Kusumi Koharu", "Morita Hikaru", "Song Hayoung", "Kitagawa Yuri", "Manabe Anju", "Kawasaki Sakura", "Usa", "Sakamoto Mashiro", "Wada Miyu", "Oda Erina", "Kizaki Yuria", "Masumoto Kira", "Yagami Kumi", "Hotei Moka", "Arai Sae", "Lee Nakyung", "Kang Hyewon", "Uemura Rina", "Yamauchi Yuna", "Sakaguchi Nagisa", "Ota Aika", "Miyata Manamo", "Yakubo Mio", "Sashihara Rino", "Nishino Nanase", "Sato Airi", "Kubo Satone", "Sakagawa Hiyuka", "Tano Yuka", "Hara Yune", null, "Kumazaki Haruka", "Takanashi Rui", null, "Kamimura Hinano", "Sasaki Mirei"] }
+};
+
+(function(){
+'use strict';
+const N = 200;
+const PLACEHOLDER = 'data:image/svg+xml;utf8,' + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" width="75" height="105"><rect width="100%" height="100%" fill="#334155"/><text x="50%" y="58%" fill="#64748b" font-size="34" text-anchor="middle" font-family="sans-serif">?</text></svg>');
+const $ = id => document.getElementById(id);
+const esc = s => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const slug = g => g.toLowerCase().replace(/[^a-z0-9]/g, '');
+
+// ---------- library lookups ----------
+const libNames = new Set();
+const groupOf = {};
+Object.keys(idolData).forEach(g => idolData[g].forEach(n => { libNames.add(n); if (!groupOf[n]) groupOf[n] = g; }));
+const photoOf = n => photoMap[n] || PLACEHOLDER;
+document.addEventListener('error', e => {
+  const t = e.target;
+  if (t && t.tagName === 'IMG' && !t.dataset.fb) { t.dataset.fb = '1'; t.src = PLACEHOLDER; }
+}, true);
+
+// ---------- state ----------
+let slots = new Array(N + 1).fill(null);   // 1..N -> {name, note}
+let holding = [];                           // [{name, note}]
+const undoStack = [];
+let dirty = false;
+
+const isPlaced = n => holding.some(h => h.name === n) || slots.some(s => s && s.name === n);
+const firstEmpty = (from = 1) => { for (let i = from; i <= N; i++) if (!slots[i]) return i; return null; };
+const rankedCount = () => slots.reduce((a, s) => a + (s ? 1 : 0), 0);
+
+function setDirty(v){ dirty = v; $('dirty').hidden = !v; }
+
+// ---------- undo ----------
+function snap(){ return JSON.stringify({ s: slots.slice(1), h: holding }); }
+function pushUndo(){
+  undoStack.push(snap());
+  if (undoStack.length > 50) undoStack.shift();
+  updateUndoBtn(); setDirty(true);
+}
+function updateUndoBtn(){
+  $('b-undo').disabled = undoStack.length === 0;
+  $('undo-lbl').textContent = undoStack.length ? 'Undo (' + undoStack.length + ')' : 'Undo';
+}
+function undo(){
+  if (!undoStack.length) return;
+  const o = JSON.parse(undoStack.pop());
+  slots = [null].concat(o.s);
+  holding = o.h;
+  renderAll(); updateUndoBtn(); setDirty(true);
+  if (pickerOpen()) refreshPicker();
+  toast('Undone');
+}
+
+// ---------- board rendering ----------
+const board = $('board');
+const slotEls = new Array(N + 1);
+
+function buildBoard(){
+  board.innerHTML = '';
+  if (!localStorage.getItem('idolHintSeen')) {
+    const h = document.createElement('div');
+    h.id = 'hint';
+    h.innerHTML = '<div style="flex:1"><b>Tap a box</b> to pick a girl from the library. <b>Swipe a card left</b> to remove her (back to the library), <b>right</b> to send her to the Holding Cell. The ✕ also removes. Tap a filled card for more options.</div><button aria-label="Dismiss">✕</button>';
+    h.querySelector('button').onclick = () => { try { localStorage.setItem('idolHintSeen', '1'); } catch(e){} h.remove(); };
+    board.appendChild(h);
+  }
+  for (let i = 1; i <= N; i++) {
+    if ((i - 1) % 20 === 0) {
+      const d = document.createElement('div');
+      d.className = 'divider'; d.textContent = 'Ranks ' + i + ' – ' + (i + 19);
+      board.appendChild(d);
+    }
+    const el = document.createElement('div');
+    el.className = 'slot empty'; el.dataset.i = i;
+    board.appendChild(el);
+    slotEls[i] = el;
+  }
+}
+
+function renderSlot(i){
+  const el = slotEls[i], d = slots[i];
+  el.removeAttribute('data-dir');
+  if (!d) {
+    el.className = 'slot empty';
+    el.innerHTML = '<div class="fg"><div class="numcol">' + i + '</div><div class="content mid"><div class="plus">+</div>Tap to add</div></div>';
+    return;
+  }
+  const g = groupOf[d.name] || '';
+  el.className = 'slot filled';
+  el.innerHTML =
+    '<div class="swipe-bg"><span class="sl">⬇ Hold</span><span class="sr">Remove ✕</span></div>' +
+    '<div class="fg"><div class="numcol">' + i + '</div>' +
+    '<div class="content"><img class="photo" loading="lazy" decoding="async" alt="" src="' + esc(photoOf(d.name)) + '">' +
+    '<div class="right"><div class="nm">' + esc(d.name) + '</div><div class="gtag g-' + slug(g) + '">' + esc(g) + '</div>' +
+    '<textarea placeholder="Add a note…" rows="2"></textarea></div></div>' +
+    '<button class="x" aria-label="Remove">✕</button></div>';
+  const ta = el.querySelector('textarea');
+  ta.value = d.note || '';
+  ta.addEventListener('input', () => { d.note = ta.value; setDirty(true); });
+}
+function renderRange(a, b){ for (let i = a; i <= Math.min(b, N); i++) renderSlot(i); updateCounts(); }
+function renderAll(){ renderRange(1, N); }
+
+function updateCounts(){
+  const r = rankedCount();
+  $('count').innerHTML = r + ' / ' + N + ' ranked<br>' + holding.length + ' held';
+  const hb = $('hbadge'); hb.textContent = holding.length; hb.hidden = holding.length === 0;
+  $('p-hcount').textContent = holding.length ? '(' + holding.length + ')' : '';
+}
+
+function scrollToSlot(i){
+  const el = slotEls[i]; if (!el) return;
+  el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  el.classList.remove('flash'); void el.offsetWidth; el.classList.add('flash');
+}
+
+// ---------- core operations (same rules as the desktop version) ----------
+// place a girl in a slot; whoever is there (and the run below) slides down one.
+function placeGirl(name, slot, mode){
+  if (!(slot >= 1 && slot <= N)) { toast('Pick a rank between 1 and ' + N); return false; }
+  const occupied = !!slots[slot];
+  const pushing = occupied && mode !== 'replace';
+  if (pushing) { let e = slot; while (e <= N && slots[e]) e++; if (e > N) { toast('No room — everything below #' + slot + ' is full'); return false; } }
+  pushUndo();
+  let note = '';
+  const hi = holding.findIndex(h => h.name === name);
+  if (hi >= 0) { note = holding[hi].note || ''; holding.splice(hi, 1); }
+  let end = slot;
+  if (pushing) { let e = slot; while (slots[e]) e++; for (let k = e; k > slot; k--) slots[k] = slots[k - 1]; end = e; }
+  slots[slot] = { name, note };
+  renderRange(slot, end);
+  return true;
+}
+function removeSlot(i, dest){
+  const d = slots[i]; if (!d) return;
+  pushUndo();
+  slots[i] = null;
+  if (dest === 'hold') holding.push({ name: d.name, note: d.note || '' });
+  renderRange(i, i);
+  if (pickerOpen()) refreshPicker();
+  toast(d.name + (dest === 'hold' ? ' → Holding Cell' : ' → back to library'), { undo: true });
+}
+function moveTo(from, to){
+  if (!(to >= 1 && to <= N)) { toast('Pick a rank between 1 and ' + N); return false; }
+  if (from === to) return false;
+  const occ = k => k !== from && slots[k];
+  if (occ(to)) { let e = to; while (e <= N && occ(e)) e++; if (e > N) { toast('No room below #' + to); return false; } }
+  pushUndo();
+  const card = slots[from]; slots[from] = null;
+  let last = Math.max(from, to);
+  if (slots[to]) { let e = to; while (slots[e]) e++; for (let k = e; k > to; k--) slots[k] = slots[k - 1]; last = Math.max(last, e); }
+  slots[to] = card;
+  renderRange(Math.min(from, to), last);
+  return true;
+}
+function swapSlots(a, b){
+  if (b < 1 || b > N) return false;
+  pushUndo();
+  const t = slots[a]; slots[a] = slots[b]; slots[b] = t;
+  renderRange(Math.min(a, b), Math.max(a, b));
+  return true;
+}
+function massShift(dir, start){
+  if (!(start >= 1 && start <= N)) { toast('Enter a rank between 1 and ' + N); return false; }
+  if (dir === 'down') {
+    let lf = start; while (lf < N && slots[lf]) lf++;
+    if (slots[lf] && lf === N) { toast('No room — the bottom is full'); return false; }
+    if (!slots[start]) { toast('Nothing at #' + start + ' to shift'); return false; }
+    pushUndo();
+    for (let i = lf; i >= start; i--) if (slots[i]) { slots[i + 1] = slots[i]; slots[i] = null; }
+    renderRange(start, lf + 1);
+  } else {
+    let gap = -1;
+    for (let j = start - 1; j >= 1; j--) if (!slots[j]) { gap = j; break; }
+    if (gap === -1) { toast('No empty spot above #' + start + ' to shift into'); return false; }
+    pushUndo();
+    for (let i = gap; i < start; i++) if (slots[i + 1]) { slots[i] = slots[i + 1]; slots[i + 1] = null; }
+    renderRange(gap, start);
+  }
+  return true;
+}
+
+// ---------- board interaction: tap + swipe ----------
+let swipe = null, lastSwipe = 0;
+board.addEventListener('pointerdown', e => {
+  const fg = e.target.closest('.fg');
+  if (!fg || e.target.closest('textarea,button')) return;
+  const slotEl = fg.parentElement;
+  if (!slotEl.classList.contains('filled')) return;
+  swipe = { fg, slotEl, id: e.pointerId, x: e.clientX, y: e.clientY, dx: 0, lock: null, i: +slotEl.dataset.i };
+});
+board.addEventListener('pointermove', e => {
+  if (!swipe || e.pointerId !== swipe.id) return;
+  const dx = e.clientX - swipe.x, dy = e.clientY - swipe.y;
+  if (swipe.lock === null) {
+    if (Math.abs(dx) > 10 && Math.abs(dx) > Math.abs(dy) * 1.4) {
+      swipe.lock = 'h';
+      try { swipe.fg.setPointerCapture(e.pointerId); } catch(_){}
+      swipe.fg.classList.add('dragging');
+    } else if (Math.abs(dy) > 10) { swipe = null; return; }
+  }
+  if (swipe.lock === 'h') {
+    swipe.dx = dx;
+    swipe.fg.style.transform = 'translateX(' + dx + 'px)';
+    swipe.slotEl.dataset.dir = dx > 0 ? 'r' : 'l';
+  }
+});
+function endSwipe(e, cancelled){
+  if (!swipe || e.pointerId !== swipe.id) return;
+  const s = swipe; swipe = null;
+  if (s.lock !== 'h') return;
+  lastSwipe = Date.now();
+  s.fg.classList.remove('dragging');
+  const width = s.slotEl.getBoundingClientRect().width;
+  if (!cancelled && Math.abs(s.dx) > Math.min(110, width * 0.3)) {
+    const right = s.dx > 0;
+    s.fg.style.transform = 'translateX(' + (right ? '110%' : '-110%') + ')';
+    setTimeout(() => removeSlot(s.i, right ? 'hold' : 'library'), 180);
+  } else {
+    s.fg.style.transform = '';
+    setTimeout(() => s.slotEl.removeAttribute('data-dir'), 220);
+  }
+}
+board.addEventListener('pointerup', e => endSwipe(e, false));
+board.addEventListener('pointercancel', e => endSwipe(e, true));
+
+board.addEventListener('click', e => {
+  if (Date.now() - lastSwipe < 400) return;
+  const slotEl = e.target.closest('.slot'); if (!slotEl) return;
+  const i = +slotEl.dataset.i;
+  if (e.target.closest('.x')) { removeSlot(i, 'library'); return; }
+  if (e.target.closest('textarea')) return;
+  if (slots[i]) openSlotSheet(i); else openPicker({ slot: i, mode: 'insert' });
+});
+
+// ---------- sheets / modals / toast ----------
+function openSheet(html){
+  const back = document.createElement('div');
+  back.className = 'sheet-back';
+  back.innerHTML = '<div class="sheet">' + html + '</div>';
+  document.body.appendChild(back);
+  const close = () => back.remove();
+  back.addEventListener('click', e => { if (e.target === back) close(); });
+  return { el: back.firstChild, close };
+}
+function modal({ icon, title, text, color, buttons }){
+  return new Promise(res => {
+    const back = document.createElement('div');
+    back.className = 'modal-back';
+    back.innerHTML = '<div class="modal" style="--c:' + (color || '#4f46e5') + '"><div class="mi">' + icon + '</div><h2>' + title + '</h2><p>' + text + '</p><div class="mb"></div></div>';
+    const mb = back.querySelector('.mb');
+    buttons.forEach(b => {
+      const btn = document.createElement('button');
+      btn.className = 'btn ' + (b.cls || ''); btn.textContent = b.label;
+      btn.onclick = () => { back.remove(); res(b.value); };
+      mb.appendChild(btn);
+    });
+    back.addEventListener('click', e => { if (e.target === back) { back.remove(); res(null); } });
+    document.body.appendChild(back);
+  });
+}
+let toastTimer = null;
+function toast(msg, opt){
+  const t = $('toast');
+  $('toast-msg').textContent = msg;
+  $('toast-undo').hidden = !(opt && opt.undo && undoStack.length);
+  t.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.classList.remove('show'), opt && opt.undo ? 4500 : 2200);
+}
+$('toast-undo').onclick = () => { undo(); };
+
+function openSlotSheet(i){
+  const d = slots[i]; if (!d) return;
+  const { el, close } = openSheet(
+    '<div class="sh-head"><img class="sh-img" src="' + esc(photoOf(d.name)) + '" alt=""><div><div class="sh-name">' + esc(d.name) + '</div><div class="sh-sub">Rank #' + i + '</div></div></div>' +
+    '<div class="sh-row"><label for="mv">Move to rank #</label><input id="mv" type="number" inputmode="numeric" min="1" max="' + N + '" placeholder="#"><button class="btn pri" id="mvgo">Move</button></div>' +
+    '<div class="sh-grid">' +
+    '<button class="btn" data-a="up">▲ Up one</button><button class="btn" data-a="down">▼ Down one</button>' +
+    '<button class="btn pri" data-a="insert">＋ Insert a girl here</button><button class="btn pri" data-a="replace">⇄ Replace her</button>' +
+    '<button class="btn amber" data-a="hold">⬇ Holding Cell</button><button class="btn red" data-a="remove">✕ Remove</button>' +
+    '</div>');
+  el.querySelector('#mvgo').onclick = () => {
+    const to = parseInt(el.querySelector('#mv').value, 10);
+    if (isNaN(to)) { toast('Type a rank number first'); return; }
+    if (moveTo(i, to)) { close(); setTimeout(() => scrollToSlot(to), 50); }
+  };
+  el.querySelectorAll('[data-a]').forEach(b => b.onclick = () => {
+    const a = b.dataset.a;
+    if (a === 'up') { if (i > 1 && swapSlots(i, i - 1)) { close(); scrollToSlot(i - 1); } }
+    else if (a === 'down') { if (i < N && swapSlots(i, i + 1)) { close(); scrollToSlot(i + 1); } }
+    else if (a === 'insert') { close(); openPicker({ slot: i, mode: 'insert' }); }
+    else if (a === 'replace') { close(); openPicker({ slot: i, mode: 'replace' }); }
+    else if (a === 'hold') { close(); removeSlot(i, 'hold'); }
+    else if (a === 'remove') { close(); removeSlot(i, 'library'); }
+  });
+}
+
+function openShiftSheet(){
+  const { el, close } = openSheet(
+    '<div class="sh-name" style="margin-bottom:6px">⇅ Shift Target</div>' +
+    '<p class="sh-note"><b>Down</b> pushes this rank and everyone stacked right below it down one spot. <b>Up</b> pulls everyone from the nearest gap above up to this rank up one spot.</p>' +
+    '<div class="sh-row"><label for="sh">Rank #</label><input id="sh" type="number" inputmode="numeric" min="1" max="' + N + '" placeholder="#"></div>' +
+    '<div class="sh-grid"><button class="btn pri" data-d="up">UP ↑</button><button class="btn pri" data-d="down">DOWN ↓</button></div>');
+  el.querySelectorAll('[data-d]').forEach(b => b.onclick = () => {
+    const v = parseInt(el.querySelector('#sh').value, 10);
+    if (isNaN(v)) { toast('Type a rank number first'); return; }
+    if (massShift(b.dataset.d, v)) { close(); toast('Shifted ' + b.dataset.d + ' from #' + v, { undo: true }); }
+  });
+}
+
+function openJumpSheet(){
+  let rows = '';
+  for (let i = 1; i <= N; i++) rows += '<div class="jrow' + (slots[i] ? '' : ' e') + '" data-i="' + i + '"><b>' + i + '.</b><span>' + (slots[i] ? esc(slots[i].name) : '---') + '</span></div>';
+  const { el, close } = openSheet('<div class="sh-name" style="margin-bottom:10px"># Current Order — tap to jump</div><input id="jfilter" type="search" placeholder="Find a name…" autocomplete="off"><div id="jlist">' + rows + '</div>');
+  const f = el.querySelector('#jfilter');
+  f.addEventListener('input', () => {
+    const q = f.value.toLowerCase().trim();
+    el.querySelectorAll('.jrow').forEach(r => { r.hidden = q && !r.textContent.toLowerCase().includes(q); });
+  });
+  el.querySelector('#jlist').addEventListener('click', e => {
+    const r = e.target.closest('.jrow'); if (!r) return;
+    close(); scrollToSlot(+r.dataset.i);
+  });
+}
+
+// ---------- picker (library + holding cell) ----------
+const picker = $('picker');
+const pk = { built: false, tab: 'lib', ctx: null };
+const pickerOpen = () => picker.classList.contains('open');
+
+function buildPicker(){
+  pk.built = true;
+  const lib = $('p-lib'), chips = $('p-chips');
+  Object.keys(idolData).forEach(g => {
+    const sec = document.createElement('section');
+    sec.className = 'group'; sec.dataset.group = g;
+    sec.innerHTML = '<h2 class="g-' + slug(g) + '">' + esc(g.replace('_', ' ')) + '<small></small></h2><div class="grid">' +
+      idolData[g].map(n => '<button class="tile" data-name="' + esc(n) + '"><img loading="lazy" decoding="async" alt="" src="' + esc(photoOf(n)) + '"><span>' + esc(n) + '</span></button>').join('') + '</div>';
+    lib.appendChild(sec);
+    const c = document.createElement('button');
+    c.className = 'g-' + slug(g); c.dataset.group = g; c.textContent = g.replace('_', ' ');
+    chips.appendChild(c);
+  });
+  const none = document.createElement('div');
+  none.className = 'empty-msg'; none.id = 'p-none'; none.hidden = true; none.textContent = 'No girls match.';
+  lib.appendChild(none);
+}
+
+function openPicker(ctx, tab){
+  if (!pk.built) buildPicker();
+  pk.ctx = ctx || null;
+  pk.tab = tab || 'lib';
+  $('p-search').value = '';
+  $('p-keepwrap').hidden = !pk.ctx;
+  $('p-keep').checked = false;
+  updatePickerTitle();
+  picker.classList.add('open'); picker.setAttribute('aria-hidden', 'false');
+  document.body.classList.add('noscroll');
+  refreshPicker();
+  $('p-body').scrollTop = 0;
+}
+function closePicker(){
+  picker.classList.remove('open'); picker.setAttribute('aria-hidden', 'true');
+  document.body.classList.remove('noscroll');
+  $('p-search').blur();
+}
+function updatePickerTitle(){
+  const c = pk.ctx;
+  let t, mode = '';
+  if (c) {
+    if (c.mode === 'replace') t = 'Replace Rank #' + c.slot;
+    else if (slots[c.slot]) t = 'Insert at Rank #' + c.slot;
+    else t = 'Pick for Rank #' + c.slot;
+    mode = c.mode === 'replace' ? 'Tap a girl — she takes this spot and the current girl goes back to the library.'
+         : slots[c.slot] ? 'Tap a girl — she goes here and everyone below slides down one.'
+         : 'Tap a girl to put her in this box. (Holding Cell tab works too.)';
+  } else {
+    t = 'Browse';
+    mode = pk.tab === 'hold' ? 'Tap a girl in the cell to place her in a rank, or ✕ to send her back to the library.'
+         : 'Browsing — tap a girl to add her to your Holding Cell.';
+  }
+  $('p-title').textContent = t;
+  const m = $('p-mode'); m.textContent = mode; m.hidden = !mode;
+}
+
+function refreshPicker(){
+  if (!pk.built) return;
+  const placed = new Set();
+  slots.forEach(s => s && placed.add(s.name)); holding.forEach(h => placed.add(h.name));
+  const toks = $('p-search').value.toLowerCase().split(/\s+/).filter(Boolean);
+  const isLib = pk.tab === 'lib';
+  $('tab-lib').classList.toggle('on', isLib); $('tab-hold').classList.toggle('on', !isLib);
+  $('p-lib').hidden = !isLib; $('p-hold').hidden = isLib; $('p-chips').hidden = !isLib;
+  let total = 0;
+  document.querySelectorAll('#p-lib .group').forEach(sec => {
+    const g = sec.dataset.group; let vis = 0;
+    sec.querySelectorAll('.tile').forEach(t => {
+      const n = t.dataset.name;
+      const hay = (n + ' ' + g).toLowerCase();
+      const show = !placed.has(n) && toks.every(k => hay.includes(k));
+      t.hidden = !show; if (show) vis++;
+    });
+    sec.hidden = vis === 0; sec.querySelector('small').textContent = '(' + vis + ')';
+    const chip = document.querySelector('#p-chips [data-group="' + g + '"]'); if (chip) chip.hidden = vis === 0;
+    total += vis;
+  });
+  $('p-none').hidden = total !== 0;
+  if (!isLib) renderHoldView(toks);
+  updatePickerTitle();
+  updateCounts();
+}
+
+function renderHoldView(toks){
+  const box = $('p-hold');
+  const list = holding.filter(h => (toks || []).every(k => h.name.toLowerCase().includes(k)));
+  let html = '<button class="sortbtn" id="sortcell"' + (holding.length < 2 ? ' disabled' : '') + '>⚖ Sort Cell — pick your favourites</button>';
+  if (!list.length) html += '<div class="empty-msg">' + (holding.length ? 'No matches.' : 'Your Holding Cell is empty.<br>Swipe a ranked card right, or browse the Library and tap a girl.') + '</div>';
+  else html += '<div class="grid">' + list.map(h => '<button class="tile" data-src="hold" data-name="' + esc(h.name) + '"><img loading="lazy" alt="" src="' + esc(photoOf(h.name)) + '"><span>' + esc(h.name) + '</span><div class="tx" aria-label="Return to library">✕</div></button>').join('') + '</div>';
+  box.innerHTML = html;
+}
+
+$('p-close').onclick = closePicker;
+$('p-search').addEventListener('input', () => { clearTimeout(pk.st); pk.st = setTimeout(refreshPicker, 120); });
+$('tab-lib').onclick = () => { pk.tab = 'lib'; refreshPicker(); $('p-body').scrollTop = 0; };
+$('tab-hold').onclick = () => { pk.tab = 'hold'; refreshPicker(); $('p-body').scrollTop = 0; };
+$('p-chips').addEventListener('click', e => {
+  const b = e.target.closest('button'); if (!b) return;
+  const sec = document.querySelector('#p-lib .group[data-group="' + b.dataset.group + '"]');
+  if (sec) $('p-body').scrollTo({ top: sec.offsetTop - 60, behavior: 'smooth' });
+});
+$('p-body').addEventListener('click', e => {
+  if (e.target.closest('#sortcell')) { startHoldingCellSort(); return; }
+  const t = e.target.closest('.tile'); if (!t) return;
+  const name = t.dataset.name, inHold = t.dataset.src === 'hold';
+  if (e.target.closest('.tx')) {
+    pushUndo(); holding = holding.filter(h => h.name !== name);
+    refreshPicker(); toast(name + ' → back to library', { undo: true }); return;
+  }
+  if (pk.ctx) {
+    const { slot, mode } = pk.ctx;
+    if (!placeGirl(name, slot, mode)) return;
+    if ($('p-keep').checked) {
+      const nx = firstEmpty(slot + 1);
+      if (nx) { pk.ctx = { slot: nx, mode: 'insert' }; refreshPicker(); toast(name + ' → #' + slot); return; }
+    }
+    closePicker(); setTimeout(() => scrollToSlot(slot), 280);
+  } else if (inHold) {
+    openHoldTileSheet(name);
+  } else {
+    pushUndo(); holding.push({ name, note: '' });
+    refreshPicker(); toast(name + ' → Holding Cell', { undo: true });
+  }
+});
+
+function openHoldTileSheet(name){
+  const n = firstEmpty() || 1;
+  const { el, close } = openSheet(
+    '<div class="sh-head"><img class="sh-img" src="' + esc(photoOf(name)) + '" alt=""><div><div class="sh-name">' + esc(name) + '</div><div class="sh-sub">In the Holding Cell</div></div></div>' +
+    '<div class="sh-row"><label for="pl">Place at rank #</label><input id="pl" type="number" inputmode="numeric" min="1" max="' + N + '" value="' + n + '"><button class="btn pri" id="plgo">Place</button></div>' +
+    '<div class="sh-grid"><button class="btn red wide" id="plback">Return to library</button></div>');
+  el.querySelector('#plgo').onclick = () => {
+    const v = parseInt(el.querySelector('#pl').value, 10);
+    if (placeGirl(name, v, 'insert')) { close(); refreshPicker(); toast(name + ' → #' + v, { undo: true }); }
+  };
+  el.querySelector('#plback').onclick = () => {
+    pushUndo(); holding = holding.filter(h => h.name !== name); close(); refreshPicker(); toast(name + ' → back to library', { undo: true });
+  };
+}
+
+// ---------- holding cell sort (merge sort, tap your favourite) ----------
+function startHoldingCellSort(){
+  if (holding.length < 2) return;
+  const items = holding.map(h => ({ name: h.name, src: photoOf(h.name) }));
+  const total = Math.ceil(items.length * Math.log2(items.length));
+  let done = 0, pending = null, cancelled = false;
+  const ov = document.createElement('div');
+  ov.id = 'sort';
+  ov.innerHTML = '<button class="sx" aria-label="Cancel">✕</button><div class="st">⚖ Sort Holding Cell — pick your favourite</div><div class="pb"><div id="sbar"></div></div><div id="arena"></div><div class="sc" id="scount"></div>';
+  document.body.appendChild(ov);
+  ov.querySelector('.sx').onclick = () => { cancelled = true; if (pending) pending('x'); ov.remove(); };
+
+  function ask(a, b){
+    return new Promise(res => {
+      pending = res;
+      $('sbar').style.width = Math.min(100, Math.round(done / total * 100)) + '%';
+      $('scount').textContent = 'Comparison ' + (done + 1) + ' of ~' + total;
+      done++;
+      const arena = $('arena'); arena.innerHTML = '';
+      [a, b].forEach((it, idx) => {
+        const side = idx === 0 ? 'a' : 'b';
+        const col = document.createElement('button');
+        col.className = 'pick';
+        col.innerHTML = '<div class="ph2"><img alt="" src="' + esc(it.src) + '"></div><div class="pn">' + esc(it.name) + '</div><div class="pk">★ Pick her</div>';
+        col.onclick = () => res(side);
+        arena.appendChild(col);
+        if (idx === 0) { const v = document.createElement('div'); v.className = 'vs'; v.textContent = 'VS'; arena.appendChild(v); }
+      });
+    });
+  }
+  async function msort(arr){
+    if (arr.length <= 1) return arr;
+    const mid = arr.length >> 1;
+    const l = await msort(arr.slice(0, mid)), r = await msort(arr.slice(mid));
+    const out = []; let i = 0, j = 0;
+    while (i < l.length && j < r.length) {
+      const w = await ask(l[i], r[j]);
+      if (cancelled) throw new Error('cancel');
+      if (w === 'a') out.push(l[i++]); else out.push(r[j++]);
+    }
+    return out.concat(l.slice(i), r.slice(j));
+  }
+  msort(items.slice()).then(sorted => {
+    ov.remove();
+    pushUndo();
+    const byName = {}; holding.forEach(h => byName[h.name] = h);
+    holding = sorted.map(s => byName[s.name]);
+    refreshPicker(); toast('Holding Cell sorted — favourites first', { undo: true });
+  }).catch(() => {});
+}
+
+// ---------- presets ----------
+async function applyPreset(key){
+  const p = PRESETS[key]; if (!p) return;
+  const have = rankedCount();
+  if (have > 0) {
+    const ok = await modal({
+      icon: '📋', title: 'Load "' + esc(p.label) + '"?', color: '#6366f1',
+      text: 'This places <b>' + p.list.filter(Boolean).length + '</b> girls into your rankings in this order.<br>Your current <b>' + have + '</b> ranked girls go back to the library, and any notes on them are cleared. You can Undo.',
+      buttons: [{ label: 'Cancel', value: false }, { label: 'Load it', value: true, cls: 'pri' }]
+    });
+    if (!ok) return;
+  }
+  pushUndo();
+  slots = new Array(N + 1).fill(null);
+  const inPreset = new Set(p.list.filter(Boolean));
+  holding = holding.filter(h => !inPreset.has(h.name));
+  const empties = [];
+  p.list.forEach((n, idx) => { if (n) slots[idx + 1] = { name: n, note: '' }; else empties.push(idx + 1); });
+  renderAll();
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+  toast(p.label + ' loaded' + (empties.length ? ' — ' + empties.length + ' spot' + (empties.length > 1 ? 's' : '') + ' left empty (#' + empties.join(', #') + ')' : ''), { undo: true });
+}
+$('preset').addEventListener('change', async e => {
+  const v = e.target.value; e.target.value = '';
+  if (v) await applyPreset(v);
+});
+
+// ---------- save / load / export / reset ----------
+function saveData(){
+  const data = {};
+  for (let i = 1; i <= N; i++) if (slots[i]) data[i] = { name: slots[i].name, note: slots[i].note || '' };
+  try {
+    localStorage.setItem('idolRankingCache', JSON.stringify(data));
+    localStorage.setItem('idolHoldingCell', JSON.stringify(holding.map(h => h.name)));
+  } catch (err) { toast('Could not save — browser storage is blocked'); return; }
+  setDirty(false);
+  const r = Object.keys(data).length, h = holding.length;
+  modal({ icon: '💾', title: 'Saved!', color: '#22c55e',
+    text: '<b>' + r + '</b> girl' + (r !== 1 ? 's' : '') + ' ranked &nbsp;·&nbsp; <b>' + h + '</b> in holding cell',
+    buttons: [{ label: 'Got it', value: true, cls: 'good' }] });
+}
+function loadData(){
+  try {
+    const saved = JSON.parse(localStorage.getItem('idolRankingCache') || 'null');
+    if (saved) Object.keys(saved).forEach(k => {
+      const i = +k, it = saved[k];
+      if (i >= 1 && i <= N && it && libNames.has(it.name) && !isPlaced(it.name)) slots[i] = { name: it.name, note: it.note || '' };
+    });
+    const held = JSON.parse(localStorage.getItem('idolHoldingCell') || 'null');
+    if (held) held.forEach(n => { if (libNames.has(n) && !isPlaced(n)) holding.push({ name: n, note: '' }); });
+  } catch (err) {}
+}
+function exportList(){
+  let list = 'IDOL RANKER PRO - CURRENT LIST\n==============================\n\n';
+  for (let i = 1; i <= N; i++) {
+    const d = slots[i];
+    if (d) { const note = (d.note || '').trim(); list += i + '. ' + d.name + (note ? ' - (' + note + ')' : '') + '\n'; }
+    else list += i + '. ---\n';
+  }
+  const blob = new Blob([list], { type: 'text/plain' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob); a.download = 'My_Idol_Rankings.txt';
+  document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(() => URL.revokeObjectURL(a.href), 4000);
+  toast('Exported My_Idol_Rankings.txt');
+}
+async function resetAll(){
+  const first = await modal({
+    icon: '⚠️', title: 'Wipe Everything?', color: '#ef4444',
+    text: 'This will permanently delete your rankings, holding cell, and all notes — including your saved copy. <b style="color:#f87171">This cannot be undone.</b>',
+    buttons: [{ label: 'Cancel', value: false }, { label: 'Continue', value: true, cls: 'red' }]
+  });
+  if (!first) return;
+  const r = rankedCount(), h = holding.length;
+  const second = await modal({
+    icon: '🛑', title: 'Are you really sure?', color: '#ef4444',
+    text: 'Last chance. You are about to erase <b>' + r + '</b> ranked girl' + (r !== 1 ? 's' : '') + ' and <b>' + h + '</b> in the holding cell. There is <b>no way to get them back</b>.',
+    buttons: [{ label: 'No, keep it', value: false, cls: 'good' }, { label: 'Yes, delete all', value: true, cls: 'red' }]
+  });
+  if (!second) { toast('Reset cancelled — nothing was changed'); return; }
+  try { localStorage.removeItem('idolRankingCache'); localStorage.removeItem('idolHoldingCell'); } catch (e) {}
+  slots = new Array(N + 1).fill(null); holding = []; undoStack.length = 0;
+  updateUndoBtn(); setDirty(false); renderAll();
+  if (pickerOpen()) refreshPicker();
+  window.scrollTo({ top: 0 });
+  toast('Everything has been reset');
+}
+
+// ---------- wiring ----------
+$('b-undo').onclick = undo;
+$('b-lib').onclick = () => openPicker(null, 'lib');
+$('b-hold').onclick = () => openPicker(null, 'hold');
+$('b-jump').onclick = openJumpSheet;
+$('b-shift').onclick = openShiftSheet;
+$('b-save').onclick = saveData;
+$('b-export').onclick = exportList;
+$('b-reset').onclick = resetAll;
+document.addEventListener('keydown', e => { if ((e.ctrlKey || e.metaKey) && e.key === 'z') { e.preventDefault(); undo(); } });
+
+buildBoard();
+loadData();
+renderAll();
+updateUndoBtn();
+setDirty(false);
+})();
+</script>
+</body>
+</html>
